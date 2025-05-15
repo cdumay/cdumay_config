@@ -13,6 +13,9 @@ repository = "https://github.com/cdumay/cdumay_config"
 
 [dependencies]
 cdumay_error = { version = "1.0", features = ["derive"] }
+cdumay_error_json = "0.1"
+cdumay_error_toml = { version = "0.1", optional = true }
+cdumay_error_yaml = { version = "0.1", optional = true }
 log = "0.4"
 serde = "1.0"
 serde-value = "0.7"
@@ -23,9 +26,9 @@ shellexpand = "3.1"
 toml = { version = "0.8", optional = true }
 
 [features]
-toml = ["dep:toml"]
+toml = ["dep:toml", "cdumay_error_toml"]
 xml = ["serde-xml-rs"]
-yaml = ["serde_yaml"]
+yaml = ["serde_yaml", "cdumay_error_yaml"]
 
 [package.metadata.docs.rs]
 all-features = true

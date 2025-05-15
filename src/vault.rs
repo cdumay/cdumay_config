@@ -1,23 +1,55 @@
+//! This module defines a structure for managing secrets (like credentials or API keys) 
+//! retrieved from a vault-like configuration. It supports dynamic format parsing (e.g., JSON, YAML) 
+//! and deserialization into typed Rust values using context-aware templating.
+
 use crate::formats::Manager;
 use cdumay_error::AsError;
 
+/// Vault secret error
 cdumay_error::define_errors! {
     VaultSecretError = crate::error::InvalidConfiguration
 }
 
+/// Represents a single secret stored in the vault.
+///
+/// Each secret has a user-defined alias, an internal key, and a string value
+/// which can be deserialized later using a specific format.
 #[derive(serde::Deserialize, Clone, Debug)]
 pub struct VaultSecret {
+    /// A human-readable name or identifier for the secret.
     pub alias: String,
+    /// A technical or symbolic key identifier for the secret.
     pub key: String,
+    /// The actual string value of the secret (e.g., a password or API key).
     pub value: String,
 }
 
+/// A collection of multiple secrets loaded from a configuration source.
+///
+/// Provides utility methods for accessing secrets by alias and deserializing
+/// them into strongly typed values.
 #[derive(serde::Deserialize, Clone, Debug)]
 pub struct VaultSecrets {
     data: Vec<VaultSecret>,
 }
 
 impl VaultSecrets {
+    /// Retrieves and deserializes a secret value by its alias.
+    ///
+    /// # Type Parameters
+    /// - `C`: The target deserialization type.
+    ///
+    /// # Parameters
+    /// - `name`: The alias of the secret to retrieve.
+    /// - `format`: The format used to deserialize the secret's value (e.g. JSON, YAML).
+    /// - `context`: A templating context used for value substitution (e.g. variables).
+    ///
+    /// # Returns    
+    /// The deserialized secret as type `C` if successful, or an error
+    /// if the alias doesn't exist or deserialization fails.
+    ///
+    /// # Errors
+    /// Returns a [`VaultSecretError`] if the alias is not found or deserialization fails.
     pub fn alias<C: serde::de::DeserializeOwned>(
         &self,
         name: String,
@@ -43,12 +75,38 @@ impl VaultSecrets {
     }
 }
 
+/// Configuration structure for loading secrets from an external file.
+///
+/// Wraps the underlying list of secrets and provides initialization and access methods.
+///
+/// # Example
+/// ```rust
+/// fn load() -> cdumay_error::Result<String> {
+///     let mut context = std::collections::BTreeMap::new();
+///     let config = cdumay_config::VaultConfig::init("vault.json", &context)?;
+///     context.insert("env".to_string(), serde_value::Value::String("prod".to_string()));
+///     
+///     let secrets = config.secrets(&context)?;
+///     secrets.alias("my_alias".to_string(), cdumay_config::ContentFormat::JSON, &context)
+/// }
+/// ```
 #[derive(serde::Deserialize, Clone, Debug)]
 pub struct VaultConfig {
     secrets: Option<VaultSecrets>,
 }
 
 impl VaultConfig {
+    /// Initializes a new `VaultConfig` instance from a JSON configuration file.
+    ///
+    /// # Parameters
+    /// - `path`: The file path to the JSON configuration containing the secrets.
+    /// - `context`: A context used to resolve templated values in the configuration.
+    ///
+    /// # Returns
+    /// A `VaultConfig` populated with secrets if successful.
+    ///
+    /// # Errors
+    /// Returns a deserialization or file read error if the JSON cannot be parsed.
     pub fn init(path: &str, context: &std::collections::BTreeMap<String, serde_value::Value>) -> cdumay_error::Result<VaultConfig> {
         Ok(VaultConfig {
             secrets: Some(VaultSecrets {
@@ -56,6 +114,13 @@ impl VaultConfig {
             }),
         })
     }
+    /// Returns the list of secrets if they have been loaded.
+    ///
+    /// # Parameters
+    /// - `context`: Context passed to generate a detailed error if secrets are missing.
+    ///
+    /// # Returns
+    /// The `VaultSecrets` if available, or an error otherwise.
     pub fn secrets(&self, context: &std::collections::BTreeMap<String, serde_value::Value>) -> cdumay_error::Result<VaultSecrets> {
         match self.secrets.clone() {
             None => Err(VaultSecretError::new()

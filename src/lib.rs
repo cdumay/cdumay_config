@@ -28,8 +28,17 @@
 //!
 //! fn main() -> cdumay_error::Result<()> {
 //!     let context = std::collections::BTreeMap::new();
-//!     let config = DatabaseConfig { user: "john".to_string(), password: "smith".to_string(), database: "example".to_string() };
-//!     let _ = cdumay_config::write_config("locker-db.json", Some(cdumay_config::ContentFormat::JSON), config, &context)?;
+//!     let config = DatabaseConfig { 
+//!         user: "john".to_string(), 
+//!         password: "smith".to_string(), 
+//!         database: "example".to_string() 
+//!     };
+//!     let _ = cdumay_config::write_config(
+//!         "locker-db.json", 
+//!         Some(cdumay_config::ContentFormat::JSON), 
+//!         config, 
+//!         &context
+//!     )?;
 //!     Ok(())
 //! }
 //! ```

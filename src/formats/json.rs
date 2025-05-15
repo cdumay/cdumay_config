@@ -1,53 +1,91 @@
+use cdumay_error::ErrorConverter;
+/// JSON configuration file manager implementing the `Manager` trait.
+///
+/// This struct handles reading and writing JSON configuration files,
+/// and integrates with the error and context handling system.
 pub struct JsonManager {
+    /// Path to the JSON configuration file.
     path: String,
 }
 
 impl crate::Manager for JsonManager {
+    /// Creates a new `JsonManager` with the specified file path.
+    ///
+    /// # Parameters
+    /// - `path`: Path to the JSON configuration file.
+    ///
+    /// # Returns
+    /// A new instance of `JsonManager`.
     fn new(path: String) -> JsonManager {
         JsonManager { path }
     }
+
+    /// Returns the path to the JSON configuration file.
     fn path(&self) -> String {
         self.path.clone()
     }
+
+    /// Reads and deserializes JSON content from a `Read` stream.
+    ///
+    /// # Type Parameters
+    /// - `R`: A type implementing `Read`.
+    /// - `C`: The type into which the data will be deserialized.
+    ///
+    /// # Parameters
+    /// - `reader`: A readable stream containing JSON data.
+    /// - `context`: Context used for error reporting.
+    ///
+    /// # Returns
+    /// The deserialized configuration object or an error.
     fn read<R: std::io::Read, C: serde::de::DeserializeOwned>(
         &self,
         reader: R,
         context: &std::collections::BTreeMap<String, serde_value::Value>,
     ) -> cdumay_error::Result<C> {
-        Ok(serde_json::from_reader(reader).map_err(|err| {
-            let mut ctx = context.clone();
-            crate::ConfigurationFileError::new()
-                .set_message(format!("Invalid JSON file content: {}", err))
-                .set_details({
-                    ctx.insert("path".to_string(), serde_value::Value::String(self.path()));
-                    ctx
-                })
-        })?)
+        let mut ctx = context.clone();
+        ctx.insert("path".to_string(), serde_value::Value::String(self.path()));
+        Ok(cdumay_error_json::convert_result!(serde_json::from_reader(reader), ctx)?)
     }
+
+    /// Serializes and writes data as pretty-printed JSON to a `Write` stream.
+    ///
+    /// # Type Parameters
+    /// - `D`: The data type to serialize.
+    /// - `W`: A type implementing `Write`.
+    ///
+    /// # Parameters
+    /// - `writer`: A writable stream for output.
+    /// - `data`: The data to serialize.
+    /// - `context`: Context used for error reporting.
+    ///
+    /// # Returns
+    /// Empty result on success, or an error on failure.
     fn write<D: serde::Serialize, W: std::io::Write>(
         &self,
         writer: W,
         data: D,
         context: &std::collections::BTreeMap<String, serde_value::Value>,
     ) -> cdumay_error::Result<()> {
-        Ok(serde_json::to_writer_pretty(writer, &data).map_err(|err| {
-            crate::ConfigurationFileError::new()
-                .set_message(format!("Failed to write JSON file: {}", err))
-                .set_details({
-                    let mut ctx = context.clone();
-                    ctx.insert("path".to_string(), serde_value::Value::String(self.path()));
-                    ctx
-                })
-        })?)
+        let mut ctx = context.clone();
+        ctx.insert("path".to_string(), serde_value::Value::String(self.path()));
+        Ok(cdumay_error_json::convert_result!(serde_json::to_writer_pretty(writer, &data), ctx)?)
     }
+
+    /// Deserializes JSON content from a string slice.
+    ///
+    /// # Type Parameters
+    /// - `C`: The type into which the content will be deserialized.
+    ///
+    /// # Parameters
+    /// - `content`: The JSON string to parse.
+    /// - `context`: Context used for error reporting.
+    ///
+    /// # Returns
+    /// The deserialized object or an error if the content is invalid.
     fn read_str<C: serde::de::DeserializeOwned>(
         content: &str,
         context: &std::collections::BTreeMap<String, serde_value::Value>,
     ) -> cdumay_error::Result<C> {
-        Ok(serde_json::from_str(content).map_err(|err| {
-            crate::ConfigurationFileError::new()
-                .set_message(format!("Failed to read JSON content: {}", err))
-                .set_details(context.clone())
-        })?)
+        Ok(cdumay_error_json::convert_result!(serde_json::from_str(content), context.clone())?)
     }
 }
