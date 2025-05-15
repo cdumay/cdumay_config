@@ -1,5 +1,5 @@
-//! This module defines a structure for managing secrets (like credentials or API keys) 
-//! retrieved from a vault-like configuration. It supports dynamic format parsing (e.g., JSON, YAML) 
+//! This module defines a structure for managing secrets (like credentials or API keys)
+//! retrieved from a vault-like configuration. It supports dynamic format parsing (e.g., JSON, YAML)
 //! and deserialization into typed Rust values using context-aware templating.
 
 use crate::formats::Manager;
@@ -17,11 +17,30 @@ cdumay_error::define_errors! {
 #[derive(serde::Deserialize, Clone, Debug)]
 pub struct VaultSecret {
     /// A human-readable name or identifier for the secret.
-    pub alias: String,
+    alias: String,
     /// A technical or symbolic key identifier for the secret.
-    pub key: String,
+    key: String,
     /// The actual string value of the secret (e.g., a password or API key).
-    pub value: String,
+    value: String,
+}
+
+impl VaultSecret {
+    /// Creates a new `VaultSecret` instance with the given alias, key, and value.
+    ///
+    /// # Parameters
+    /// - `alias`: A human-readable identifier for the secret.
+    /// - `key`: A technical or symbolic key representing the secret.
+    /// - `value`: The actual string value of the secret (e.g., a token or password).
+    ///
+    /// # Returns
+    /// A new `VaultSecret` instance.
+    pub fn new(alias: &str, key: &str, value: &str) -> Self {
+        Self {
+            alias: alias.to_string(),
+            key: key.to_string(),
+            value: value.to_string(),
+        }
+    }
 }
 
 /// A collection of multiple secrets loaded from a configuration source.
@@ -34,6 +53,26 @@ pub struct VaultSecrets {
 }
 
 impl VaultSecrets {
+    /// Creates a new `VaultSecrets` instance from a given list of secrets.
+    ///
+    /// # Parameters
+    /// - `data`: A vector of `VaultSecret` items representing the stored secrets.
+    ///
+    /// # Returns
+    /// A `VaultSecrets` instance containing the provided secrets.
+    ///
+    /// # Example
+    /// ```rust
+    /// use cdumay_config::{VaultSecrets, VaultSecret};
+    ///
+    /// let secrets = vec![
+    ///     VaultSecret::new("api", "api_key", "1234")
+    /// ];
+    /// let vault = VaultSecrets::new(secrets);
+    /// ```
+    pub fn new(data: Vec<VaultSecret>) -> Self {
+        Self { data }
+    }
     /// Retrieves and deserializes a secret value by its alias.
     ///
     /// # Type Parameters
@@ -92,7 +131,7 @@ impl VaultSecrets {
 /// ```
 #[derive(serde::Deserialize, Clone, Debug)]
 pub struct VaultConfig {
-    secrets: Option<VaultSecrets>,
+    pub secrets: Option<VaultSecrets>,
 }
 
 impl VaultConfig {
