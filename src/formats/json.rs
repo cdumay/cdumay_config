@@ -1,4 +1,4 @@
-use cdumay_error::ErrorConverter;
+use cdumay_core::ErrorConverter;
 /// JSON configuration file manager implementing the `Manager` trait.
 ///
 /// This struct handles reading and writing JSON configuration files,
@@ -41,10 +41,10 @@ impl crate::Manager for JsonManager {
         &self,
         reader: R,
         context: &std::collections::BTreeMap<String, serde_value::Value>,
-    ) -> cdumay_error::Result<C> {
+    ) -> Result<C, cdumay_core::Error> {
         let mut ctx = context.clone();
         ctx.insert("path".to_string(), serde_value::Value::String(self.path()));
-        Ok(cdumay_error_json::convert_result!(serde_json::from_reader(reader), ctx)?)
+        cdumay_error_json::convert_result!(serde_json::from_reader(reader), ctx)
     }
 
     /// Serializes and writes data as pretty-printed JSON to a `Write` stream.
@@ -65,10 +65,10 @@ impl crate::Manager for JsonManager {
         writer: W,
         data: D,
         context: &std::collections::BTreeMap<String, serde_value::Value>,
-    ) -> cdumay_error::Result<()> {
+    ) -> Result<(), cdumay_core::Error> {
         let mut ctx = context.clone();
         ctx.insert("path".to_string(), serde_value::Value::String(self.path()));
-        Ok(cdumay_error_json::convert_result!(serde_json::to_writer_pretty(writer, &data), ctx)?)
+        cdumay_error_json::convert_result!(serde_json::to_writer_pretty(writer, &data), ctx)
     }
 
     /// Deserializes JSON content from a string slice.
@@ -85,7 +85,7 @@ impl crate::Manager for JsonManager {
     fn read_str<C: serde::de::DeserializeOwned>(
         content: &str,
         context: &std::collections::BTreeMap<String, serde_value::Value>,
-    ) -> cdumay_error::Result<C> {
-        Ok(cdumay_error_json::convert_result!(serde_json::from_str(content), context.clone())?)
+    ) -> Result<C, cdumay_core::Error> {
+        cdumay_error_json::convert_result!(serde_json::from_str(content), context.clone())
     }
 }

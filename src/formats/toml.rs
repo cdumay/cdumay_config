@@ -1,4 +1,4 @@
-use cdumay_error::ErrorConverter;
+use cdumay_core::ErrorConverter;
 /// TOML configuration file manager implementing the `Manager` trait.
 ///
 /// This struct handles reading from and writing to TOML configuration files,
@@ -42,12 +42,12 @@ impl crate::Manager for TomlManager {
         &self,
         mut reader: R,
         context: &std::collections::BTreeMap<String, serde_value::Value>,
-    ) -> cdumay_error::Result<C> {
+    ) -> Result<C, cdumay_core::Error> {
         let mut buffer = String::new();
         reader.read_to_string(&mut buffer).map_err(|err| {
             crate::ConfigurationFileError::new()
-                .set_message(format!("Failed to write TOML file: {}", err))
-                .set_details({
+                .with_message(format!("Failed to write TOML file: {}", err))
+                .with_details({
                     let mut ctx = context.clone();
                     ctx.insert("path".to_string(), serde_value::Value::String(self.path()));
                     ctx
@@ -74,14 +74,14 @@ impl crate::Manager for TomlManager {
         mut writer: W,
         data: D,
         context: &std::collections::BTreeMap<String, serde_value::Value>,
-    ) -> cdumay_error::Result<()> {
+    ) -> Result<(), cdumay_core::Error> {
         let mut ctx = context.clone();
         ctx.insert("path".to_string(), serde_value::Value::String(self.path()));
         let content = cdumay_error_toml::convert_serialize_result!(toml::to_string_pretty(&data), ctx.clone())?;
         Ok(writer.write_all(content.as_bytes()).map_err(|err| {
             crate::ConfigurationFileError::new()
-                .set_message(format!("Failed to write TOML file: {}", err))
-                .set_details(ctx)
+                .with_message(format!("Failed to write TOML file: {}", err))
+                .with_details(ctx)
         })?)
     }
 
@@ -99,7 +99,7 @@ impl crate::Manager for TomlManager {
     fn read_str<C: serde::de::DeserializeOwned>(
         content: &str,
         context: &std::collections::BTreeMap<String, serde_value::Value>,
-    ) -> cdumay_error::Result<C> {
-        Ok(cdumay_error_toml::convert_deserialize_result!(toml::from_str(content), context.clone())?)
+    ) -> Result<C, cdumay_core::Error> {
+        cdumay_error_toml::convert_deserialize_result!(toml::from_str(content), context.clone())
     }
 }

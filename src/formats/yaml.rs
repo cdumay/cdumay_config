@@ -1,4 +1,4 @@
-use cdumay_error::ErrorConverter;
+use cdumay_core::ErrorConverter;
 /// YAML configuration file manager implementing the `Manager` trait.
 ///
 /// This struct handles reading and writing configuration data
@@ -44,10 +44,10 @@ impl crate::Manager for YamlManager {
         &self,
         reader: R,
         context: &std::collections::BTreeMap<String, serde_value::Value>,
-    ) -> cdumay_error::Result<C> {
+    ) -> Result<C, cdumay_core::Error> {
         let mut ctx = context.clone();
         ctx.insert("path".to_string(), serde_value::Value::String(self.path()));
-        Ok(cdumay_error_yaml::convert_result!(serde_yaml::from_reader(reader), ctx)?)
+        cdumay_error_yaml::convert_result!(serde_yaml::from_reader(reader), ctx)
     }
 
     /// Serializes data to YAML and writes it to the specified output stream.
@@ -68,10 +68,10 @@ impl crate::Manager for YamlManager {
         writer: W,
         data: D,
         context: &std::collections::BTreeMap<String, serde_value::Value>,
-    ) -> cdumay_error::Result<()> {
+    ) -> Result<(), cdumay_core::Error> {
         let mut ctx = context.clone();
         ctx.insert("path".to_string(), serde_value::Value::String(self.path()));
-        Ok(cdumay_error_yaml::convert_result!(serde_yaml::to_writer(writer, &data), ctx)?)
+        cdumay_error_yaml::convert_result!(serde_yaml::to_writer(writer, &data), ctx)
     }
 
     /// Deserializes a YAML string into the target type.
@@ -88,7 +88,7 @@ impl crate::Manager for YamlManager {
     fn read_str<C: serde::de::DeserializeOwned>(
         content: &str,
         context: &std::collections::BTreeMap<String, serde_value::Value>,
-    ) -> cdumay_error::Result<C> {
-        Ok(cdumay_error_yaml::convert_result!(serde_yaml::from_str(content), context.clone())?)
+    ) -> Result<C, cdumay_core::Error> {
+        cdumay_error_yaml::convert_result!(serde_yaml::from_str(content), context.clone())
     }
 }

@@ -43,11 +43,11 @@ impl crate::Manager for XmlManager {
         &self,
         reader: R,
         context: &std::collections::BTreeMap<String, serde_value::Value>,
-    ) -> cdumay_error::Result<C> {
+    ) -> Result<C, cdumay_core::Error> {
         Ok(serde_xml_rs::from_reader(reader).map_err(|err| {
             crate::ConfigurationFileError::new()
-                .set_message(format!("Invalid XML file content: {}", err))
-                .set_details({
+                .with_message(format!("Invalid XML file content: {}", err))
+                .with_details({
                     let mut ctx = context.clone();
                     ctx.insert("path".to_string(), serde_value::Value::String(self.path()));
                     ctx.insert("origin".to_string(), serde_value::Value::String(err.to_string()));
@@ -74,11 +74,11 @@ impl crate::Manager for XmlManager {
         writer: W,
         data: D,
         context: &std::collections::BTreeMap<String, serde_value::Value>,
-    ) -> cdumay_error::Result<()> {
+    ) -> Result<(), cdumay_core::Error> {
         Ok(serde_xml_rs::to_writer(writer, &data).map_err(|err| {
             crate::ConfigurationFileError::new()
-                .set_message(format!("Failed to write XML file: {}", err))
-                .set_details({
+                .with_message(format!("Failed to write XML file: {}", err))
+                .with_details({
                     let mut ctx = context.clone();
                     ctx.insert("path".to_string(), serde_value::Value::String(self.path()));
                     ctx.insert("origin".to_string(), serde_value::Value::String(err.to_string()));
@@ -101,11 +101,11 @@ impl crate::Manager for XmlManager {
     fn read_str<C: serde::de::DeserializeOwned>(
         content: &str,
         context: &std::collections::BTreeMap<String, serde_value::Value>,
-    ) -> cdumay_error::Result<C> {
+    ) -> Result<C, cdumay_core::Error> {
         Ok(serde_xml_rs::from_str(content).map_err(|err| {
             crate::ConfigurationFileError::new()
-                .set_message(format!("Invalid XML content: {}", err))
-                .set_details(context.clone())
+                .with_message(format!("Invalid XML content: {}", err))
+                .with_details(context.clone())
         })?)
     }
 }

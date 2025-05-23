@@ -3,11 +3,10 @@
 //! and deserialization into typed Rust values using context-aware templating.
 
 use crate::formats::Manager;
-use cdumay_error::AsError;
+use crate::InvalidConfiguration;
 
-/// Vault secret error
-cdumay_error::define_errors! {
-    VaultSecretError = crate::error::InvalidConfiguration
+cdumay_core::define_errors! {
+    VaultSecretError = InvalidConfiguration
 }
 
 /// Represents a single secret stored in the vault.
@@ -94,7 +93,7 @@ impl VaultSecrets {
         name: String,
         format: crate::ContentFormat,
         context: &std::collections::BTreeMap<String, serde_value::Value>,
-    ) -> cdumay_error::Result<C> {
+    ) -> Result<C, cdumay_core::Error> {
         let aliases: std::collections::BTreeMap<String, String> = self.data.clone().into_iter().map(|item| (item.alias, item.value)).collect();
         match aliases.get(&name) {
             Some(value) => match format {
@@ -107,8 +106,8 @@ impl VaultSecrets {
                 crate::ContentFormat::TOML => crate::TomlManager::read_str(value, &context),
             },
             None => Err(VaultSecretError::new()
-                .set_message(format!("Invalid alias: {}", name))
-                .set_details(context.clone())
+                .with_message(format!("Invalid alias: {}", name))
+                .with_details(context.clone())
                 .into()),
         }
     }
@@ -120,7 +119,7 @@ impl VaultSecrets {
 ///
 /// # Example
 /// ```rust
-/// fn load() -> cdumay_error::Result<String> {
+/// fn load() -> Result<String, cdumay_core::Error> {
 ///     let mut context = std::collections::BTreeMap::new();
 ///     let config = cdumay_config::VaultConfig::init("vault.json", &context)?;
 ///     context.insert("env".to_string(), serde_value::Value::String("prod".to_string()));
@@ -146,7 +145,7 @@ impl VaultConfig {
     ///
     /// # Errors
     /// Returns a deserialization or file read error if the JSON cannot be parsed.
-    pub fn init(path: &str, context: &std::collections::BTreeMap<String, serde_value::Value>) -> cdumay_error::Result<VaultConfig> {
+    pub fn init(path: &str, context: &std::collections::BTreeMap<String, serde_value::Value>) -> Result<VaultConfig, cdumay_core::Error> {
         Ok(VaultConfig {
             secrets: Some(VaultSecrets {
                 data: crate::JsonManager::new(path.to_string()).read_config(context)?,
@@ -160,11 +159,11 @@ impl VaultConfig {
     ///
     /// # Returns
     /// The `VaultSecrets` if available, or an error otherwise.
-    pub fn secrets(&self, context: &std::collections::BTreeMap<String, serde_value::Value>) -> cdumay_error::Result<VaultSecrets> {
+    pub fn secrets(&self, context: &std::collections::BTreeMap<String, serde_value::Value>) -> Result<VaultSecrets, cdumay_core::Error> {
         match self.secrets.clone() {
             None => Err(VaultSecretError::new()
-                .set_message("Failed to read vault data".to_string())
-                .set_details(context.clone())
+                .with_message("Failed to read vault data".to_string())
+                .with_details(context.clone())
                 .into()),
             Some(secrets) => Ok(secrets),
         }

@@ -36,7 +36,7 @@ fn test_toml_manager_read_str_failure() {
     let toml = r#"name = "broken
 value = 42"#;
     let context = default_context();
-    let result: cdumay_error::Result<TestConfig> = TomlManager::read_str(toml, &context);
+    let result: Result<TestConfig, cdumay_core::Error> = TomlManager::read_str(toml, &context);
     assert!(result.is_err());
 }
 
@@ -59,7 +59,7 @@ value = 100"#;
     let reader = Cursor::new(toml);
     let context = default_context();
     let manager = TomlManager::new("broken.toml".to_string());
-    let result: cdumay_error::Result<TestConfig> = manager.read(reader, &context);
+    let result: Result<TestConfig, cdumay_core::Error> = manager.read(reader, &context);
     assert!(result.is_err());
 }
 

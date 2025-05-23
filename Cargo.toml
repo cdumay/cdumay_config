@@ -12,7 +12,7 @@ readme = "README.md"
 repository = "https://github.com/cdumay/cdumay_config"
 
 [dependencies]
-cdumay_error = { version = "1.0", features = ["derive"] }
+cdumay_core = "0.1"
 cdumay_error_json = "0.1"
 cdumay_error_toml = { version = "0.1", optional = true }
 cdumay_error_yaml = { version = "0.1", optional = true }

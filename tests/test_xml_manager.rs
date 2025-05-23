@@ -34,7 +34,7 @@ fn test_xml_manager_read_str_success() {
 fn test_xml_manager_read_str_failure() {
     let xml = r#"<TestXmlConfig><name>bad<name><count>5</count></TestXmlConfig>"#;
     let context = default_context();
-    let result: cdumay_error::Result<TestXmlConfig> = XmlManager::read_str(xml, &context);
+    let result: Result<TestXmlConfig, cdumay_core::Error> = XmlManager::read_str(xml, &context);
     assert!(result.is_err());
 }
 
@@ -55,7 +55,7 @@ fn test_xml_manager_read_invalid() {
     let reader = Cursor::new(xml);
     let context = default_context();
     let manager = XmlManager::new("fail_read.xml".to_string());
-    let result: cdumay_error::Result<TestXmlConfig> = manager.read(reader, &context);
+    let result: Result<TestXmlConfig, cdumay_core::Error> = manager.read(reader, &context);
     assert!(result.is_err());
 }
 

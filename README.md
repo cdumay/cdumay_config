@@ -16,7 +16,7 @@ key-value data with support of multiple serialization formats.
   - TOML (feature: "toml")
   - YAML (feature: "yaml")
   - XML (feature: "xml")
-- Type-safe error handling with the `cdumay_error::Error` struct
+- Type-safe error handling with the `cdumay_core::Error` struct
 
 ## Example Usage
 
@@ -28,7 +28,7 @@ pub struct DatabaseConfig {
     pub database: String,
 }
 
-fn main() -> cdumay_error::Result<()> {
+fn main() -> Result<(), cdumay_core::Error> {
     let context = std::collections::BTreeMap::new();
     let config = DatabaseConfig {
         user: "john".to_string(),
