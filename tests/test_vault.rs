@@ -38,7 +38,7 @@ fn test_secret_alias_not_found() {
     let context = sample_context();
     let secrets = VaultSecrets::new(vec![]);
 
-    let result: Result<DummySecret, cdumay_core::Error> = secrets.alias("missing".to_string(), ContentFormat::JSON, &context);
+    let result: cdumay_core::Result<DummySecret> = secrets.alias("missing".to_string(), ContentFormat::JSON, &context);
 
     assert!(result.is_err());
     let err = result.unwrap_err();

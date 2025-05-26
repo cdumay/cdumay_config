@@ -34,7 +34,7 @@ fn test_json_manager_read_str_success() {
 fn test_json_manager_read_str_failure() {
     let json = r#"{ "name": "example", "value": "not_an_int" }"#;
     let context = default_context();
-    let result: Result<TestConfig, cdumay_core::Error> = JsonManager::read_str(json, &context);
+    let result: cdumay_core::Result<TestConfig> = JsonManager::read_str(json, &context);
     assert!(result.is_err());
 }
 
@@ -57,7 +57,7 @@ fn test_json_manager_read_failure() {
     let context = default_context();
     let manager = JsonManager::new("dummy.json".to_string());
 
-    let result: Result<TestConfig, cdumay_core::Error> = manager.read(reader, &context);
+    let result: cdumay_core::Result<TestConfig> = manager.read(reader, &context);
     assert!(result.is_err());
 }
 

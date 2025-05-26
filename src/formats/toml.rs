@@ -42,7 +42,7 @@ impl crate::Manager for TomlManager {
         &self,
         mut reader: R,
         context: &std::collections::BTreeMap<String, serde_value::Value>,
-    ) -> Result<C, cdumay_core::Error> {
+    ) -> cdumay_core::Result<C> {
         let mut buffer = String::new();
         reader.read_to_string(&mut buffer).map_err(|err| {
             crate::ConfigurationFileError::new()
@@ -74,7 +74,7 @@ impl crate::Manager for TomlManager {
         mut writer: W,
         data: D,
         context: &std::collections::BTreeMap<String, serde_value::Value>,
-    ) -> Result<(), cdumay_core::Error> {
+    ) -> cdumay_core::Result<()> {
         let mut ctx = context.clone();
         ctx.insert("path".to_string(), serde_value::Value::String(self.path()));
         let content = cdumay_error_toml::convert_serialize_result!(toml::to_string_pretty(&data), ctx.clone())?;
@@ -99,7 +99,7 @@ impl crate::Manager for TomlManager {
     fn read_str<C: serde::de::DeserializeOwned>(
         content: &str,
         context: &std::collections::BTreeMap<String, serde_value::Value>,
-    ) -> Result<C, cdumay_core::Error> {
+    ) -> cdumay_core::Result<C> {
         cdumay_error_toml::convert_deserialize_result!(toml::from_str(content), context.clone())
     }
 }

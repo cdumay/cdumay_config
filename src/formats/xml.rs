@@ -43,7 +43,7 @@ impl crate::Manager for XmlManager {
         &self,
         reader: R,
         context: &std::collections::BTreeMap<String, serde_value::Value>,
-    ) -> Result<C, cdumay_core::Error> {
+    ) -> cdumay_core::Result<C> {
         Ok(serde_xml_rs::from_reader(reader).map_err(|err| {
             crate::ConfigurationFileError::new()
                 .with_message(format!("Invalid XML file content: {}", err))
@@ -74,7 +74,7 @@ impl crate::Manager for XmlManager {
         writer: W,
         data: D,
         context: &std::collections::BTreeMap<String, serde_value::Value>,
-    ) -> Result<(), cdumay_core::Error> {
+    ) -> cdumay_core::Result<()> {
         Ok(serde_xml_rs::to_writer(writer, &data).map_err(|err| {
             crate::ConfigurationFileError::new()
                 .with_message(format!("Failed to write XML file: {}", err))
@@ -101,7 +101,7 @@ impl crate::Manager for XmlManager {
     fn read_str<C: serde::de::DeserializeOwned>(
         content: &str,
         context: &std::collections::BTreeMap<String, serde_value::Value>,
-    ) -> Result<C, cdumay_core::Error> {
+    ) -> cdumay_core::Result<C> {
         Ok(serde_xml_rs::from_str(content).map_err(|err| {
             crate::ConfigurationFileError::new()
                 .with_message(format!("Invalid XML content: {}", err))

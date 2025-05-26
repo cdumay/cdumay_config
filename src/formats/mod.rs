@@ -57,7 +57,7 @@ impl Default for ContentFormat {
 ///
 /// # Example
 /// ```rust
-/// fn load() -> Result<String, cdumay_core::Error> {
+/// fn load() -> cdumay_core::Result<String> {
 ///     let mut context = std::collections::BTreeMap::new();
 ///     cdumay_config::read_config("~/.config/app.json", None, &context)
 /// }
@@ -66,7 +66,7 @@ pub fn read_config<C: serde::de::DeserializeOwned>(
     path: &str,
     format: Option<ContentFormat>,
     context: &std::collections::BTreeMap<String, serde_value::Value>,
-) -> Result<C, cdumay_core::Error> {
+) -> cdumay_core::Result<C> {
     let path = shellexpand::tilde(path);
     log::info!("Reading config file '{}'", path.as_ref());
     match format.unwrap_or(ContentFormat::JSON) {
@@ -96,7 +96,7 @@ pub fn read_config<C: serde::de::DeserializeOwned>(
 ///
 /// # Example
 /// ```
-/// fn write<S: serde::Serialize>(config: S) -> Result<std::path::PathBuf, cdumay_core::Error> {
+/// fn write<S: serde::Serialize>(config: S) -> cdumay_core::Result<std::path::PathBuf> {
 ///     let mut context = std::collections::BTreeMap::new();
 ///     cdumay_config::write_config("~/.config/app.json", Some(cdumay_config::ContentFormat::JSON), &config, &context)
 /// }
@@ -106,7 +106,7 @@ pub fn write_config<C: serde::Serialize>(
     format: Option<ContentFormat>,
     data: C,
     context: &std::collections::BTreeMap<String, serde_value::Value>,
-) -> Result<std::path::PathBuf, cdumay_core::Error> {
+) -> cdumay_core::Result<std::path::PathBuf> {
     let path = shellexpand::tilde(path);
     log::info!("Saving config file '{}'", path.as_ref());
     match format.unwrap_or(ContentFormat::JSON) {
@@ -144,7 +144,7 @@ pub trait Manager {
     ///
     /// # Returns
     /// A readable `File` handle or an error if the file cannot be opened.
-    fn open_file(&self, context: &std::collections::BTreeMap<String, serde_value::Value>) -> Result<std::fs::File, cdumay_core::Error> {
+    fn open_file(&self, context: &std::collections::BTreeMap<String, serde_value::Value>) -> cdumay_core::Result<std::fs::File> {
         Ok(std::fs::File::open(self.path()).map_err(|err| {
             crate::ConfigurationFileError::new()
                 .with_message(format!("Failed to open file: {}", err))
@@ -164,7 +164,7 @@ pub trait Manager {
     ///
     /// # Returns
     /// A writable `File` handle or an error if the file cannot be created.
-    fn create_file(&self, context: &std::collections::BTreeMap<String, serde_value::Value>) -> Result<std::fs::File, cdumay_core::Error> {
+    fn create_file(&self, context: &std::collections::BTreeMap<String, serde_value::Value>) -> cdumay_core::Result<std::fs::File> {
         Ok(std::fs::File::create(self.path()).map_err(|err| {
             crate::ConfigurationFileError::new()
                 .with_message(format!("Failed to create file: {}", err))
@@ -193,7 +193,7 @@ pub trait Manager {
         &self,
         reader: R,
         context: &std::collections::BTreeMap<String, serde_value::Value>,
-    ) -> Result<C, cdumay_core::Error>;
+    ) -> cdumay_core::Result<C>;
     
     /// Serializes and writes configuration data to a writable output stream.
     ///
@@ -213,7 +213,7 @@ pub trait Manager {
         writer: W,
         data: D,
         context: &std::collections::BTreeMap<String, serde_value::Value>,
-    ) -> Result<(), cdumay_core::Error>;
+    ) -> cdumay_core::Result<()>;
     
     /// Reads configuration directly from the file path managed by this instance.
     ///
@@ -230,7 +230,7 @@ pub trait Manager {
     fn read_config<C: serde::de::DeserializeOwned>(
         &self,
         context: &std::collections::BTreeMap<String, serde_value::Value>,
-    ) -> Result<C, cdumay_core::Error> {
+    ) -> cdumay_core::Result<C> {
         self.read(self.open_file(context)?, context)
     }
     
@@ -251,7 +251,7 @@ pub trait Manager {
         &self,
         data: &C,
         context: &std::collections::BTreeMap<String, serde_value::Value>,
-    ) -> Result<std::path::PathBuf, cdumay_core::Error> {
+    ) -> cdumay_core::Result<std::path::PathBuf> {
         let _ = self.write(self.create_file(context)?, data, context)?;
         Ok(std::path::PathBuf::from(self.path()))
     }
@@ -272,5 +272,5 @@ pub trait Manager {
     fn read_str<C: serde::de::DeserializeOwned>(
         content: &str,
         context: &std::collections::BTreeMap<String, serde_value::Value>,
-    ) -> Result<C, cdumay_core::Error>;
+    ) -> cdumay_core::Result<C>;
 }

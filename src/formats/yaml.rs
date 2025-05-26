@@ -44,7 +44,7 @@ impl crate::Manager for YamlManager {
         &self,
         reader: R,
         context: &std::collections::BTreeMap<String, serde_value::Value>,
-    ) -> Result<C, cdumay_core::Error> {
+    ) -> cdumay_core::Result<C> {
         let mut ctx = context.clone();
         ctx.insert("path".to_string(), serde_value::Value::String(self.path()));
         cdumay_error_yaml::convert_result!(serde_yaml::from_reader(reader), ctx)
@@ -68,7 +68,7 @@ impl crate::Manager for YamlManager {
         writer: W,
         data: D,
         context: &std::collections::BTreeMap<String, serde_value::Value>,
-    ) -> Result<(), cdumay_core::Error> {
+    ) -> cdumay_core::Result<()> {
         let mut ctx = context.clone();
         ctx.insert("path".to_string(), serde_value::Value::String(self.path()));
         cdumay_error_yaml::convert_result!(serde_yaml::to_writer(writer, &data), ctx)
@@ -88,7 +88,7 @@ impl crate::Manager for YamlManager {
     fn read_str<C: serde::de::DeserializeOwned>(
         content: &str,
         context: &std::collections::BTreeMap<String, serde_value::Value>,
-    ) -> Result<C, cdumay_core::Error> {
+    ) -> cdumay_core::Result<C> {
         cdumay_error_yaml::convert_result!(serde_yaml::from_str(content), context.clone())
     }
 }

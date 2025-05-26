@@ -26,7 +26,7 @@
 //!     pub database: String,
 //! }
 //!
-//! fn main() -> Result<(), cdumay_core::Error> {
+//! fn main() -> cdumay_core::Result<()> {
 //!     let context = std::collections::BTreeMap::new();
 //!     let config = DatabaseConfig { 
 //!         user: "john".to_string(), 

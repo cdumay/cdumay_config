@@ -40,7 +40,7 @@ project: myapp
 version: [not a number]
 "#;
     let context = default_context();
-    let result: Result<TestYamlConfig, cdumay_core::Error> = YamlManager::read_str(yaml, &context);
+    let result: cdumay_core::Result<TestYamlConfig> = YamlManager::read_str(yaml, &context);
     assert!(result.is_err());
 }
 
@@ -61,7 +61,7 @@ fn test_yaml_manager_read_failure() {
     let reader = Cursor::new(yaml);
     let context = default_context();
     let manager = YamlManager::new("fail_read.yaml".to_string());
-    let result: Result<TestYamlConfig, cdumay_core::Error> = manager.read(reader, &context);
+    let result: cdumay_core::Result<TestYamlConfig> = manager.read(reader, &context);
     assert!(result.is_err());
 }
 
