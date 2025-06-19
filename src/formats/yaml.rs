@@ -47,7 +47,7 @@ impl crate::Manager for YamlManager {
     ) -> cdumay_core::Result<C> {
         let mut ctx = context.clone();
         ctx.insert("path".to_string(), serde_value::Value::String(self.path()));
-        cdumay_error_yaml::convert_result!(serde_yaml::from_reader(reader), ctx)
+        cdumay_yaml::convert_yaml_result!(serde_yaml::from_reader(reader), ctx)
     }
 
     /// Serializes data to YAML and writes it to the specified output stream.
@@ -71,7 +71,7 @@ impl crate::Manager for YamlManager {
     ) -> cdumay_core::Result<()> {
         let mut ctx = context.clone();
         ctx.insert("path".to_string(), serde_value::Value::String(self.path()));
-        cdumay_error_yaml::convert_result!(serde_yaml::to_writer(writer, &data), ctx)
+        cdumay_yaml::convert_yaml_result!(serde_yaml::to_writer(writer, &data), ctx)
     }
 
     /// Deserializes a YAML string into the target type.
@@ -89,6 +89,6 @@ impl crate::Manager for YamlManager {
         content: &str,
         context: &std::collections::BTreeMap<String, serde_value::Value>,
     ) -> cdumay_core::Result<C> {
-        cdumay_error_yaml::convert_result!(serde_yaml::from_str(content), context.clone())
+        cdumay_yaml::convert_yaml_result!(serde_yaml::from_str(content), context.clone())
     }
 }

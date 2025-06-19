@@ -28,23 +28,23 @@
 //!
 //! fn main() -> cdumay_core::Result<()> {
 //!     let context = std::collections::BTreeMap::new();
-//!     let config = DatabaseConfig { 
-//!         user: "john".to_string(), 
-//!         password: "smith".to_string(), 
-//!         database: "example".to_string() 
+//!     let config = DatabaseConfig {
+//!         user: "john".to_string(),
+//!         password: "smith".to_string(),
+//!         database: "example".to_string()
 //!     };
 //!     let _ = cdumay_config::write_config(
-//!         "locker-db.json", 
-//!         Some(cdumay_config::ContentFormat::JSON), 
-//!         config, 
+//!         "locker-db.json",
+//!         Some(cdumay_config::ContentFormat::JSON),
+//!         config,
 //!         &context
 //!     )?;
 //!     Ok(())
 //! }
 //! ```
 //!
-mod error;
-pub use error::{ConfigurationFileError, InvalidConfiguration};
+mod errors;
+pub use errors::*;
 mod formats;
 pub use formats::*;
 mod vault;

@@ -44,7 +44,7 @@ impl crate::Manager for JsonManager {
     ) -> cdumay_core::Result<C> {
         let mut ctx = context.clone();
         ctx.insert("path".to_string(), serde_value::Value::String(self.path()));
-        cdumay_error_json::convert_result!(serde_json::from_reader(reader), ctx)
+        cdumay_json::convert_json_result!(serde_json::from_reader(reader), ctx)
     }
 
     /// Serializes and writes data as pretty-printed JSON to a `Write` stream.
@@ -68,7 +68,7 @@ impl crate::Manager for JsonManager {
     ) -> cdumay_core::Result<()> {
         let mut ctx = context.clone();
         ctx.insert("path".to_string(), serde_value::Value::String(self.path()));
-        cdumay_error_json::convert_result!(serde_json::to_writer_pretty(writer, &data), ctx)
+        cdumay_json::convert_json_result!(serde_json::to_writer_pretty(writer, &data), ctx)
     }
 
     /// Deserializes JSON content from a string slice.
@@ -86,6 +86,6 @@ impl crate::Manager for JsonManager {
         content: &str,
         context: &std::collections::BTreeMap<String, serde_value::Value>,
     ) -> cdumay_core::Result<C> {
-        cdumay_error_json::convert_result!(serde_json::from_str(content), context.clone())
+        cdumay_json::convert_json_result!(serde_json::from_str(content), context.clone())
     }
 }

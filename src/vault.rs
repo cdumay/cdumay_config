@@ -2,9 +2,9 @@
 //! retrieved from a vault-like configuration. It supports dynamic format parsing (e.g., JSON, YAML)
 //! and deserialization into typed Rust values using context-aware templating.
 
-use crate::InvalidConfiguration;
 use crate::formats::Manager;
 use cdumay_core::define_errors;
+use cdumay_error::InvalidConfiguration;
 
 define_errors! {
     VaultSecretError = InvalidConfiguration

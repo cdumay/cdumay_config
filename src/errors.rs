@@ -1,8 +1,5 @@
-use cdumay_core::{define_errors, define_kinds};
-
-define_kinds! {
-    InvalidConfiguration=(400, "Invalid Configuration"),
-}
+use cdumay_core::define_errors;
+use cdumay_error::InvalidConfiguration;
 
 define_errors! {
     ConfigurationFileError = InvalidConfiguration,
